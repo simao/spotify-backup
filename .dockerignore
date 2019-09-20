@@ -1,0 +1,5 @@
+target/
+!target/release/spotify_backup
+.git
+
+

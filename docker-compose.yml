@@ -1,0 +1,33 @@
+version: '3'
+services:
+  frontend:
+    image: simao/spotify-backup:latest
+    container_name: spotify-backup-frontend
+    restart: always
+    environment:
+      - CLIENT_ID=dccc26891bde4aea9b1ff3ee8ca6abcb
+      - CLIENT_SECRET=d68dd4433bb94bde933acde5ae790702
+      - RUST_LOG=info,spotify_backup=debug
+    command: spotify-backup server
+    volumes:
+       - /home/sm-data/spotify-backup/data:/opt/spotify-backup/data
+       - /home/sm-data/spotify-backup/spotify-backup.toml:/opt/spotify-backup/spotify-backup.toml
+#       - /home/simao/code/spotify-backup/data:/opt/spotify-backup/data
+#       - /home/simao/code/spotify-backup/spotify-backup.example.toml:/opt/spotify-backup/spotify-backup.toml
+    ports:
+      - "5555:8000"
+
+  backend:
+    image: simao/spotify-backup:latest
+    container_name: spotify-backup-backend
+    restart: always
+    volumes:
+      - /home/sm-data/spotify-backup/data:/opt/spotify-backup/data
+      - /home/sm-data/spotify-backup/spotify-backup.toml:/opt/spotify-backup/spotify-backup.toml
+#      - /home/simao/code/spotify-backup/data:/opt/spotify-backup/data
+#      - /home/simao/code/spotify-backup/spotify-backup.example.toml:/opt/spotify-backup/spotify-backup.toml
+    command: spotify-backup daemon
+    environment:
+      - CLIENT_ID=dccc26891bde4aea9b1ff3ee8ca6abcb
+      - CLIENT_SECRET=d68dd4433bb94bde933acde5ae790702
+      - RUST_LOG=info,spotify_backup=info

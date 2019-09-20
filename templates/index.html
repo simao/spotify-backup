@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="container" style="padding-top: 3em">
+    <div class="row">
+        <div class="column column-75 column-offset-10">
+            <h1>Backup your Spotify Account</h1>
+            <p>Press the button to backup your album and playlist data from spotify.</p>
+            <p>You will be able to download a json file containing all your albums and playlists.</p>
+            <p>This only backs up your spotify data, it does not backup the actual audio files.</p>
+            <p>This app can only access your spotify data for an hour.
+              After an hour, all data is deleted and you will no longer be able to download your backup.</p>
+            <p>
+              If you don't want to trust this app with your spotify data
+              you could also run it yourself, see <a href="https://github.com/simao/spotify-backup">this github repo</a>.
+            <form method="post" action="{{ base_path | safe }}/api/backups">
+                <fieldset>
+                    <input class="button-red button-primary" type="submit" value="Backup">
+                </fieldset>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock content %}

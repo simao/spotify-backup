@@ -1,0 +1,6 @@
+/target
+**/*.rs.bk
+.idea
+.spotify_token_cache.json
+backup-requests.db
+data/downloads/*.json

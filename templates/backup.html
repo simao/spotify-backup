@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="container" style="padding-top: 3em">
+    <div class="row">
+        <div class="column column-75 column-offset-10">
+        {% if missing %}
+        <h1>Missing Backup</h1>
+        <p>Backup with up with {{backup_id}} not found</p>
+
+        {% elif error %}
+        <h1>Error</h1>
+        There was an error with your backup: {{error}}
+
+        {% elif completed %}
+        <h1>Backup expired</h1>
+        <p>This backup was complete and no longer available.</p>
+        <p>Backups and all private data is deleted after certain period of time and they must be downloaded before they expire.</p>
+
+        {% elif executed %}
+        <h1>Download Backup</h1>
+        <p>Your backup is ready</p>
+        <p>
+          <a href="{{ base_path | safe }}/downloads/{{ backup_id }}.json">Download your backup here</a>
+        </p>
+
+        {% else %}
+        <h1>Download a backup</h1>
+        <p>Your backup is being processed</p>
+        <p class="hide-on-js">Refresh this page to check if your backup is ready</p>
+        <p class="show-on-js" style="display: none">
+            A link to download your backup will appear once the backup is ready to download.</br>
+            You can instead refresh this page if you are impatient.
+        </p>
+
+        {% endif %}
+        </div>
+    </div>
+</div>
+
+{% endblock content %}
+
+{% block footer %}
+{{ super() }}
+
+<script
+        src="https://code.jquery.com/jquery-3.4.1.min.js"
+        integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
+        crossorigin="anonymous"></script>
+
+<script language="JavaScript">
+    var backup_id = "{{backup_id}}";
+
+    $(document).ready(function () {
+      var mod = {
+        poll_timeout: 5000,
+
+        poll: function() {
+          setTimeout(function () {
+            mod.whenReady(backup_id, function (json) {
+              if (json.executed || json.error || json.completed) {
+                window.location.replace('{{ base_path | safe }}/backups/' + backup_id);
+              } else {
+                mod.poll();
+              }
+            }, mod.poll)
+          },
+           mod.poll_timeout);
+        },
+
+        showReady: function() {
+          $('.show-on-ready').css('display', 'block');
+          $('.hide-on-ready').hide();
+        },
+
+        whenReady: function (backup_id, callback, error_callback) {
+          $.ajax({
+            url: "{{ base_path | safe }}/api/backups/" + backup_id,
+            dataType: 'json',
+            success: function(jsonResponse, textStatus, jqXHR) {
+              callback(jsonResponse)
+            },
+            error: error_callback
+          });
+        }
+      };
+
+      // if backup is not processing
+      if ($('.show-on-js').length == 0)
+        return;
+
+      $('.show-on-js').css('display', 'block');
+      $('.hide-on-js').hide();
+
+      mod.poll();
+    });
+</script>
+{% endblock footer %}
+
